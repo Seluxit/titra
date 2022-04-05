@@ -211,7 +211,17 @@ Meteor.methods({
     check(projectId, String)
     check(priority, Number)
     checkAuthentication(this)
-    Projects.update({ _id: projectId }, { $set: { priority } })
+    if(getGlobalSetting('orderProjectsGlobally')) {
+      Projects.update({ _id: projectId }, { $set: { priority } })
+    } else {
+      const data = Meteor.user().project || {};
+      data[projectId] = priority;
+      Meteor.users.update({ _id: this.userId }, {
+        $set: {
+          project: data
+        }
+      });
+    }
     return 'notifications.project_priority_success'
   },
   setDefaultTaskForProject({ projectId, taskId }) {

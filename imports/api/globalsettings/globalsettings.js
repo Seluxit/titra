@@ -108,4 +108,7 @@ defaultSettings.push({
 defaultSettings.push({
   name: 'showNameOfCustomFieldInDetails', description: 'settings.show_name_custom_field_in_details', type: 'text', value: false,
 })
+defaultSettings.push({
+  name: 'orderProjectsGlobally', description: 'settings.order_projects_globally', type: 'text', value: true,
+})
 export { defaultSettings, Globalsettings }
