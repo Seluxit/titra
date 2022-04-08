@@ -111,4 +111,8 @@ defaultSettings.push({
 defaultSettings.push({
   name: 'enableOpenIDConnect', description: 'settings.enable_open_id_connect', type: 'text', value: false,
 })
+defaultSettings.push({
+  name: 'enableLogForOtherUsers', description: 'settings.enable_log_for_other_users', type: 'text', value: false,
+})
+
 export { defaultSettings, Globalsettings }
