@@ -1,6 +1,7 @@
 import { AccountsAnonymous } from 'meteor/faburem:accounts-anonymous'
 import Extensions from '../../api/extensions/extensions.js'
 import { defaultSettings, Globalsettings } from '../../api/globalsettings/globalsettings.js'
+import { getGlobalSetting } from '../../utils/frontend_helpers'
 
 Meteor.startup(() => {
   AccountsAnonymous.init()
@@ -17,6 +18,11 @@ Meteor.startup(() => {
     // eslint-disable-next-line i18next/no-literal-string
     Globalsettings.update({ name: 'enableAnonymousLogins' }, { $set: { value: Meteor.settings.disablePublic === 'true' } })
   }
+  if (getGlobalSetting('enableOpenIDConnect')) {
+    import('../../utils/oidc_server').then((Oidc) => {
+      Oidc.registerOidc()
+    });
+  }
   for (const extension of Extensions.find({})) {
     if (extension.isActive) {
       if (extension.id === 'titra_ldap') {
@@ -27,14 +33,6 @@ Meteor.startup(() => {
       // eslint-disable-next-line no-eval
       eval(extension.server)
     }
-  }
-
-  if (process.env.RESET_OIDC === 'true') {
-    ServiceConfiguration.configurations.remove({
-      service: 'oidc',
-    })
-    // eslint-disable-next-line no-console, i18next/no-literal-string
-    console.log('Reset oidc configuration')
   }
 
   if (process.env.NODE_ENV !== 'development') {
