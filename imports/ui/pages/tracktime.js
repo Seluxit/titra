@@ -11,6 +11,7 @@ import { t } from '../../utils/i18n.js'
 import Timecards from '../../api/timecards/timecards.js'
 import Projects from '../../api/projects/projects.js'
 import { getGlobalSetting, getUserSetting, showToast } from '../../utils/frontend_helpers.js'
+import { isHoliday } from '../../utils/holiday.js'
 
 import './tracktime.html'
 import '../components/projectselect.js'
@@ -258,14 +259,16 @@ Template.tracktime.events({
   },
   'change .js-date': (event, templateInstance) => {
     if ($(event.currentTarget).val()) {
-      let date = dayjs(templateInstance.$(event.currentTarget).val(), getGlobalSetting('dateformatVerbose'))
+      let date = dayjs(templateInstance.$(event.currentTarget).val(), [getGlobalSetting('dateformatVerbose'), undefined])
       if (!date.isValid()) {
         date = dayjs()
         event.currentTarget.value = date.format(getGlobalSetting('dateformatVerbose'))
       }
       date = date.format('YYYY-MM-DD')
       // we need this to correctly capture calender change events from the input
-      FlowRouter.setQueryParams({ date })
+      if (!Template.instance().tcid?.get()) {
+        FlowRouter.setQueryParams({ date })
+      }
     }
     // templateInstance.date.set($(event.currentTarget).val())
   },
@@ -372,16 +375,18 @@ Template.tracktime.helpers({
   getCustomFieldValue: (fieldId) => (Template.instance().time_entry.get()
     ? Template.instance().time_entry.get()[fieldId] : false),
   logForOtherUsers: () => {
-    if(getGlobalSetting('enableLogForOtherUsers') && Template?.instance()?.projectId?.get()) {
+    if (getGlobalSetting('enableLogForOtherUsers') && Template?.instance()?.projectId?.get()) {
       const targetProject = Projects.findOne({ _id: Template.instance().projectId.get() })
       if (targetProject
           && (targetProject.userId === Meteor.userId()
               || targetProject.admins?.indexOf(Meteor.userId()) >= 0)) {
-        return true;
+        return true
       }
     }
-    return false;
-  }
+    return false
+  },
+  holidayToday: () => (isHoliday(Template.instance().date.get())
+    ? isHoliday(Template.instance().date.get())[0].name : false),
 })
 
 Template.tracktimemain.onCreated(function tracktimeCreated() {

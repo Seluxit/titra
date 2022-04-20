@@ -32,7 +32,14 @@
       {{/unless}}
     </div>
     {{#unless isEdit}}
-      <div class="card mb-3 mb-3">
+      {{#if holidayToday}}
+      <div class="card mb-3">
+        <div class="card-header">
+          {{ holidayToday }}
+        </div>
+      </div>
+      {{/if}}
+      <div class="card mb-3">
           <div class="card-header js-toggle-timecards">
             {{#if Template.subscriptionsReady}}
               {{#if totalTime}}

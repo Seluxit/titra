@@ -171,7 +171,11 @@
     "mail_from_name": "Mail from name",
     "show_name_custom_field_in_details": "Show name for custom fields in details view?",
     "enable_open_id_connect": "Enable OpenID Connect?",
-    "enable_log_for_other_users": "Can administrator register time for other users?"
+    "enable_log_for_other_users": "Can administrator register time for other users?",
+    "holiday": "Holiday",
+    "holiday_country": "Holiday Country",
+    "holiday_state": "Holiday State",
+    "holiday_region": "Holyday Region"
   },
   "customer": {
     "select_customer": "Select a customer",

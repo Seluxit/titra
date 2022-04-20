@@ -114,5 +114,13 @@ defaultSettings.push({
 defaultSettings.push({
   name: 'enableLogForOtherUsers', description: 'settings.enable_log_for_other_users', type: 'text', value: false,
 })
-
+defaultSettings.push({
+  name: 'holidayCountry', description: 'settings.holiday_country', type: 'text', value: '',
+})
+defaultSettings.push({
+  name: 'holidayState', description: 'settings.holiday_state', type: 'text', value: '',
+})
+defaultSettings.push({
+  name: 'holidayRegion', description: 'settings.holiday_region', type: 'text', value: '',
+})
 export { defaultSettings, Globalsettings }
