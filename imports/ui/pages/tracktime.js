@@ -292,7 +292,11 @@ Template.tracktime.events({
         trigger: 'manual',
         container: templateInstance.$('form'),
         html: true,
-        content: templateInstance.$(event.currentTarget).children('.js-popover-content').html(),
+        content: () => {
+          const $popoverElement = document.createElement('div')
+          $popoverElement.innerHTML = templateInstance.$(event.currentTarget).children('.js-popover-content').first().html()
+          return $popoverElement
+        },
       })
     timerowpopover.show()
   },
@@ -302,7 +306,7 @@ Template.tracktime.events({
       bootstrap.Popover.getInstance(element)?.hide()
     })
     const timecardId = event.currentTarget.href.split('/').pop()
-    Meteor.call('deleteTimeCard', { timecardId }, (error, result) => {
+    Meteor.call('deleteTimeCard', { timecardId }, (error) => {
       if (!error) {
         showToast(t('notifications.time_entry_deleted'))
       } else {
