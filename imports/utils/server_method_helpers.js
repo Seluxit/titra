@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { t } from './i18n.js'
 import Projects from '../api/projects/projects.js'
 import projectUsers from '../api/users/users.js'
 import { periodToDates } from './periodHelpers.js'
@@ -17,20 +16,26 @@ function getProjectListById(projectId) {
       { $fields: { _id: 1 } },
     ).fetch().map((value) => value._id)
   } else {
-    projectList = [projectId]
+    projectList = Projects.find(
+      {
+        _id: projectId,
+        $or: [{ userId }, { public: true }, { team: userId }],
+      },
+      { $fields: { _id: 1 } },
+    ).fetch().map((value) => value._id)
   }
   return projectList
 }
 function checkAuthentication(context) {
   if (!context.userId) {
-    throw new Meteor.Error(t('notifications.auth_error_method'))
+    throw new Meteor.Error('notifications.auth_error_method')
   }
 }
 function checkAdminAuthentication(context) {
   if (!context.userId) {
-    throw new Meteor.Error(t('notifications.auth_error_method'))
+    throw new Meteor.Error('notifications.auth_error_method')
   } else if (!Meteor.users.findOne({ _id: context.userId }).isAdmin) {
-    throw new Meteor.Error(t('notifications.auth_error_method'))
+    throw new Meteor.Error('notifications.auth_error_method')
   }
 }
 function getProjectListByCustomer(customer) {
@@ -67,7 +72,8 @@ function totalHoursForPeriodMapper(entry) {
   }
   return {
     projectId: Projects.findOne({ _id: entry._id.projectId }).name,
-    userId: projectUsers.findOne().users.find((elem) => elem._id === entry._id.userId)?.profile?.name,
+    userId: projectUsers
+      .findOne().users.find((elem) => elem._id === entry._id.userId)?.profile?.name,
     totalHours,
   }
 }

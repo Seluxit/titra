@@ -11,7 +11,7 @@ import { t } from '../../utils/i18n.js'
 import Timecards from '../../api/timecards/timecards.js'
 import Projects from '../../api/projects/projects.js'
 import { getGlobalSetting, getUserSetting, showToast } from '../../utils/frontend_helpers.js'
-import { isHoliday } from '../../utils/holiday.js'
+import { getHolidays, checkHoliday } from '../../utils/holiday.js'
 
 import './tracktime.html'
 import '../components/projectselect.js'
@@ -22,6 +22,12 @@ import '../components/calendar.js'
 import '../components/backbutton.js'
 import '../components/usersearch.js'
 import CustomFields from '../../api/customfields/customfields.js'
+
+function isHoliday(date) {
+  const templateInstance = Template.instance()
+  const holidays = templateInstance.holidays.get()
+  return checkHoliday(holidays, date)
+}
 
 Template.tracktime.onRendered(() => {
   const templateInstance = Template.instance()
@@ -67,6 +73,10 @@ Template.tracktime.onCreated(function tracktimeCreated() {
   this.totalTime = new ReactiveVar(0)
   this.edittcid = new ReactiveVar()
   this.time_entry = new ReactiveVar()
+  this.holidays = new ReactiveVar([])
+  getHolidays().then((holidays) => {
+    this.holidays.set(holidays)
+  })
   this.subscribe('customfieldsForClass', { classname: 'time_entry' })
   let handle
   this.autorun(() => {
@@ -91,7 +101,7 @@ Template.tracktime.onCreated(function tracktimeCreated() {
       if (this.subscriptionsReady()) {
         this.time_entry.set(Timecards.findOne(this.tcid.get()))
         this.date.set(Timecards.findOne({ _id: this.tcid.get() })
-          ? dayjs(Timecards.findOne({ _id: this.tcid.get() }).date).toDate()
+          ? dayjs.utc(Timecards.findOne({ _id: this.tcid.get() }).date).toDate()
           : dayjs().toDate())
         this.projectId.set(Timecards.findOne({ _id: this.tcid.get() }) ? Timecards.findOne({ _id: this.tcid.get() }).projectId : '')
       }
@@ -165,12 +175,12 @@ Template.tracktime.events({
     const user = templateInstance.$('.js-usersearch-input')?.val() || Meteor.userId()
     const task = templateInstance.$('.js-tasksearch-input').val()
     const localDate = dayjs(templateInstance.$('.js-date').val()).toDate()
-    const date = dayjs.utc(templateInstance.$('.js-date').val(), getGlobalSetting('dateformatVerbose')).isValid()
+    let date = dayjs.utc(templateInstance.$('.js-date').val(), getGlobalSetting('dateformatVerbose')).isValid()
       ? dayjs.utc(templateInstance.$('.js-date').val(), getGlobalSetting('dateformatVerbose')).toDate()
       : dayjs.utc(`${localDate.getFullYear()}-${localDate.getMonth() + 1}-${localDate.getDate()}`).toDate()
     if (getGlobalSetting('useStartTime') && !templateInstance.tcid?.get()) {
       if ($('#startTime').val()) {
-        date.setHours($('#startTime').val().split(':')[0], $('#startTime').val().split(':')[1])
+        date = dayjs.utc(date.setHours($('#startTime').val().split(':')[0], $('#startTime').val().split(':')[1])).toDate()
       } else {
         showToast(t('notifications.check_time_input'))
         return
@@ -346,15 +356,20 @@ Template.tracktime.events({
     })
   },
 })
+function isEditMode() {
+  return (Template.instance().tcid && Template.instance().tcid.get())
+  || (Template.instance().data.dateArg && Template.instance().data.dateArg.get())
+  || (Template.instance().data.projectIdArg && Template.instance().data.projectIdArg.get())
+}
 Template.tracktime.helpers({
-  date: () => dayjs(Template.instance().date.get()).format(getGlobalSetting('dateformatVerbose')),
+  date: () => (isEditMode()
+    ? dayjs.utc(Template.instance().date.get()).format(getGlobalSetting('dateformatVerbose'))
+    : dayjs(Template.instance().date.get()).format(getGlobalSetting('dateformatVerbose'))),
   projectId: () => Template.instance().projectId.get(),
   reactiveProjectId: () => Template.instance().projectId,
   projectName: (_id) => (Projects.findOne({ _id }) ? Projects.findOne({ _id }).name : false),
   timecards: () => Timecards.find(),
-  isEdit: () => (Template.instance().tcid && Template.instance().tcid.get())
-    || (Template.instance().data.dateArg && Template.instance().data.dateArg.get())
-    || (Template.instance().data.projectIdArg && Template.instance().data.projectIdArg.get()),
+  isEdit: () => isEditMode(),
   task: () => {
     const project = Projects.findOne({ _id: Template.instance().projectId.get() })
     const timecard = Timecards.findOne({ _id: Template.instance().tcid.get() })

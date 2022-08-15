@@ -35,8 +35,8 @@ if (getGlobalSetting('showNameOfCustomFieldInDetails')) {
 function detailedDataTableMapper(entry) {
   const project = Projects.findOne({ _id: entry.projectId })
   const mapping = [project ? project.name : '',
-    dayjs.utc(entry.date).format(getGlobalSetting('dateformat')),
-    entry.task,
+    dayjs.utc(entry.date).local().format(getGlobalSetting('dateformat')),
+    entry.task.replace(/^=/, '='),
     projectUsers.findOne() ? projectUsers.findOne().users.find((elem) => elem._id === entry.userId)?.profile?.name : '']
   if (getGlobalSetting('showCustomFieldsInDetails')) {
     if (CustomFields.find({ classname: 'time_entry' }).count() > 0) {
@@ -232,7 +232,7 @@ Template.detailtimetable.onRendered(() => {
                         }
                       },
                       setValue(setValue) {
-                        Meteor.call('setTimeEntriesState', { timeEntries: [editorData[6]], state: setValue }, (error) => {
+                        Meteor.call('setTimeEntriesState', { timeEntries: [editorData[editorData.length - 1]], state: setValue }, (error) => {
                           if (error) {
                             console.error(error)
                           } else {

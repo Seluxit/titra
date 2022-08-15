@@ -170,7 +170,12 @@
     "mail_from_name": "E-Mail von Name",
     "show_name_custom_field_in_details": "Namen für benutzerdefinierte Felder in der Detailansicht anzeigen?",
     "enable_open_id_connect": "OpenID Connect aktivieren?",
-    "enable_log_for_other_users": "Kann der Administrator Zeit für andere Benutzer registrieren?"
+    "enable_log_for_other_users": "Kann der Administrator Zeit für andere Benutzer registrieren?",
+    "holiday": "Feiertage",
+    "holiday_country": "Land",
+    "holiday_state": "Bundesland",
+    "holiday_region": "Region/Stadt",
+    "xframe_options_origin": "X-Frame-Options header origin URL"
   },
   "customer": {
     "select_customer": "Kunde auswählen",
@@ -329,7 +334,12 @@
     "password_mismatch": "Die eingegebenen Passwörter stimmen nicht überein. Bitte überprüfen Sie Ihre Eingabe.",
     "permanent_account": "Permanenten Zugang erstellen",
     "anonymous_account_warning": "Sie verwenden aktuell einen temporären Account. Wenn Sie titra auf einem anderen Gerät verwenden möchten, erstellen Sie bitte einen Benutzer mit E-mail Addresse und Passwort.",
-    "registration_disabled_warning": "Die Registrierung neuer Benutzer ist auf dieser titra Instanz deaktiviert."
+    "registration_disabled_warning": "Die Registrierung neuer Benutzer ist auf dieser titra Instanz deaktiviert.",
+    "invalid_email": "Ungültige E-mail Adresse",
+    "password_insufficient": "Das gewählte Passwort ist zu schwach. Bitte wählen Sie ein Passwort mit mindestens 8 Zeichen.",
+    "password_strong": "Passwort Sicherheit: Hoch",
+    "password_medium": "Passwort Sicherheit: Mittel",
+    "password_weak": "Passwort Sicherheit: Niedrig"
   },
   "about": {
     "documentation": "Dokumentation",

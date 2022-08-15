@@ -18,7 +18,12 @@ function getUserSetting(field) {
 
 function addToolTipToTableCell(value) {
   if (value) {
-    return `<span class="js-tooltip" data-bs-toggle="tooltip" data-bs-placement="left" title="${value}">${value}</span>`
+    const toolTipElement = $('<span/>').text(value)
+    toolTipElement.addClass('js-tooltip')
+    toolTipElement.attr('data-bs-toggle', 'tooltip')
+    toolTipElement.attr('data-bs-placement', 'left')
+    toolTipElement.attr('title', toolTipElement.text())
+    return toolTipElement.get(0).outerHTML
   }
   return ''
 }
@@ -74,7 +79,27 @@ function validateEmail(email) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return re.test(String(email).toLowerCase())
 }
-
+function validatePassword(pwd) {
+  const strongRegex = /^(?=.{14,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\W).*$/g
+  const mediumRegex = /^(?=.{10,})(((?=.*[A-Z])(?=.*[a-z]))|((?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))).*$/g
+  const enoughRegex = /(?=.{8,}).*/g
+  if (pwd.length === 0) {
+    return { valid: false, message: t('login.password_insufficient') }
+  }
+  if (enoughRegex.test(pwd) === false) {
+    return { valid: false, message: t('login.password_insufficient') }
+  }
+  if (strongRegex.test(pwd)) {
+    return { valid: true, message: t('login.password_strong') }
+  }
+  if (mediumRegex.test(pwd)) {
+    return { valid: true, message: t('login.password_medium') }
+  }
+  if (pwd.length > 50) {
+    return { valid: false, message: t('login.password_insufficient') }
+  }
+  return { valid: true, message: t('login.password_weak') }
+}
 async function emojify(match) {
   const emojiImport = await import('node-emoji')
   return emojiImport.default.emojify(match, (name) => name)
@@ -123,6 +148,7 @@ export {
   timeInUserUnit,
   displayUserAvatar,
   validateEmail,
+  validatePassword,
   emojify,
   getGlobalSetting,
   numberWithUserPrecision,

@@ -1,50 +1,60 @@
-import Holidays from 'date-holidays'
-import { getUserSetting } from './frontend_helpers'
-
-const hd = new Holidays()
-
-function getHolidayCountries() {
-  return hd.getCountries()
+async function getHolidayCountries() {
+  return new Promise((resolve, reject) => {
+    Meteor.call('getHolidayCountries', undefined, (error, result) => {
+      if (error) {
+        reject(error)
+      }
+      resolve(result)
+    })
+  })
 }
 
-function getHolidayStates(country) {
-  if (country) {
-    return hd.getStates(country)
-  }
-  return false
+async function getHolidayStates(country) {
+  const c = country || ''
+  return new Promise((resolve, reject) => {
+    Meteor.call('getHolidayStates', { country: c }, (error, result) => {
+      if (error) {
+        reject(error)
+      }
+      resolve(result)
+    })
+  })
 }
 
-function getHolidayRegions(country, state) {
-  if (country && state) {
-    return hd.getRegions(country, state)
-  }
-  return false
+async function getHolidayRegions(country, state) {
+  const c = country || ''
+  const s = state || ''
+  return new Promise((resolve, reject) => {
+    Meteor.call('getHolidayRegions', { country: c, state: s }, (error, result) => {
+      if (error) {
+        reject(error)
+      }
+      resolve(result)
+    })
+  })
 }
 
-function getCurrentHoliday() {
-  const country = getUserSetting('holidayCountry')
-  const state = getUserSetting('holidayState')
-  const region = getUserSetting('holidayRegion')
-
-  return new Holidays(country, state, region)
+async function getHolidays() {
+  return new Promise((resolve, reject) => {
+    Meteor.call('getHolidays', undefined, (error, result) => {
+      if (error) {
+        reject(error)
+      }
+      resolve(result)
+    })
+  })
 }
 
-function isHoliday(day) {
-  const h = getCurrentHoliday()
-  if (h) {
-    return h.isHoliday(day)
-  }
-  return false
-}
-
-function getHolidays() {
-  const h = getCurrentHoliday()
-  if (h) {
-    return h.getHolidays()
-  }
-  return []
+function checkHoliday(holidays, date) {
+  const currentHolidays = []
+  holidays.forEach((holiday) => {
+    if (date >= holiday.start && date < holiday.end) {
+      currentHolidays.push(holiday)
+    }
+  })
+  return currentHolidays.length ? currentHolidays : false
 }
 
 export {
-  getHolidayCountries, getHolidayStates, getHolidayRegions, isHoliday, getHolidays,
+  getHolidayCountries, getHolidayStates, getHolidayRegions, getHolidays, checkHoliday,
 }

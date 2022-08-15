@@ -12,7 +12,7 @@
             <th scope="col" style="min-width:200px;width:200px">{{t "globals.project"}} / {{t "globals.task"}}</th>
             {{#each weekday in weekDays}}
             {{#if isHoliday @index }}
-              <th scope="col" style="min-width:122px; background-color: rgb(143, 223, 130);">{{ isHoliday @index }}<br>{{weekday}}</th>
+              <th scope="col" class="holiday" style="min-width:122px;">{{ isHoliday @index }}<br>{{weekday}}</th>
             {{else}}
               <th scope="col" style="min-width:122px;">{{weekday}}</th>
             {{/if}}
@@ -59,7 +59,7 @@
         </td>
         {{#each weekday in weekDays}}
           <td>
-            <input type="number" value="{{getHoursForDay weekday task}}" data-task="{{task._id}}" data-project-id="{{projectId}}" data-week-day="{{@index}}" class="form-control js-hours" placeholder="0.00"/>
+            <input aria-label="Weekday {{@index}}" type="number" value="{{getHoursForDay weekday task}}" data-task="{{task._id}}" data-project-id="{{projectId}}" data-week-day="{{@index}}" class="form-control js-hours" placeholder="0.00"/>
           </td>
         {{/each}}
         <td class="pt-2">{{getTotalForTask(task)}}</td>

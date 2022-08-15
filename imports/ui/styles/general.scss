@@ -82,6 +82,9 @@
 
 $btn-link-color: $body-color;
 
+:root {
+  accent-color: $primary;
+}
 .form-label {
   z-index: 3;
 }
@@ -298,4 +301,15 @@ button.dp-clear {
   transform: scale(1.5);
   vertical-align: middle;
   margin-left: 10px !important;
+}
+
+.holiday {
+  background-color: $dark;
+  color: $light !important;
+}
+
+.fc-bg-event {
+  background-color: $dark !important;
+  color: $light !important;
+  opacity: 1 !important;
 }
