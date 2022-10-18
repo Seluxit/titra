@@ -147,6 +147,7 @@ $pagination-disabled-bg:                #303030;
 //Other
 $font-weight-base:                      200;
 $form-file-button-bg:                   $secondary;
+$progress-bg:                           $secondary;
 
 //Toast-Messages
 $toast-background-color:                rgba($secondary, .85);
@@ -160,7 +161,10 @@ $modal-header-border-b-color:           0px;
 $modal-content-bg-color:                $grey;
 $modal-content-color:                   #dadada;
 
-
+//Dropdown
+$dropdown-color:                        $body-color;
+$dropdown-bg:                           $grey;
+$dropdown-border-color:                 $dark-border;
 //++++ [AdvancedCustomization] ++++ ///////////////////////////////////////////////////////
 
 

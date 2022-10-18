@@ -1,14 +1,14 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import Projects from '../api/projects/projects.js'
-import projectUsers from '../api/users/users.js'
+import { projectResources } from '../api/users/users.js'
 import { periodToDates } from './periodHelpers.js'
 import { getGlobalSetting, getUserSetting } from './frontend_helpers.js'
 
 function getProjectListById(projectId) {
   let projectList = []
   const userId = Meteor.userId()
-  if (projectId === 'all') {
+  if (projectId.includes('all')) {
     projectList = Projects.find(
       {
         $or: [{ userId }, { public: true }, { team: userId }],
@@ -16,23 +16,27 @@ function getProjectListById(projectId) {
       { $fields: { _id: 1 } },
     ).fetch().map((value) => value._id)
   } else {
+    const projectSelector = {
+      _id: projectId,
+      $or: [{ userId }, { public: true }, { team: userId }],
+    }
+    if (projectId instanceof Array) {
+      projectSelector._id = { $in: projectId }
+    }
     projectList = Projects.find(
-      {
-        _id: projectId,
-        $or: [{ userId }, { public: true }, { team: userId }],
-      },
+      projectSelector,
       { $fields: { _id: 1 } },
     ).fetch().map((value) => value._id)
   }
   return projectList
 }
 function checkAuthentication(context) {
-  if (!context.userId) {
+  if (!context.userId || Meteor.users.findOne({ _id: context.userId })?.inactive) {
     throw new Meteor.Error('notifications.auth_error_method')
   }
 }
 function checkAdminAuthentication(context) {
-  if (!context.userId) {
+  if (!context.userId || Meteor.users.findOne({ _id: context.userId })?.inactive) {
     throw new Meteor.Error('notifications.auth_error_method')
   } else if (!Meteor.users.findOne({ _id: context.userId }).isAdmin) {
     throw new Meteor.Error('notifications.auth_error_method')
@@ -42,7 +46,7 @@ function getProjectListByCustomer(customer) {
   let projects = []
   const userId = Meteor.userId()
 
-  if (customer === 'all') {
+  if (customer.includes('all')) {
     projects = Projects.find(
       {
         $or: [{ userId }, { public: true }, { team: userId }],
@@ -50,10 +54,14 @@ function getProjectListByCustomer(customer) {
       { _id: 1, name: 1 },
     )
   } else {
+    const selector = {
+      customer, $or: [{ userId }, { public: true }, { team: userId }],
+    }
+    if (customer instanceof Array) {
+      selector.customer = { $in: customer }
+    }
     projects = Projects.find(
-      {
-        customer, $or: [{ userId }, { public: true }, { team: userId }],
-      },
+      selector,
       { _id: 1, name: 1 },
     )
   }
@@ -71,9 +79,8 @@ function totalHoursForPeriodMapper(entry) {
     }
   }
   return {
-    projectId: Projects.findOne({ _id: entry._id.projectId }).name,
-    userId: projectUsers
-      .findOne().users.find((elem) => elem._id === entry._id.userId)?.profile?.name,
+    projectId: Projects.findOne({ _id: entry._id.projectId })?.name,
+    userId: projectResources.findOne({ _id: entry._id.userId })?.name,
     totalHours,
   }
 }
@@ -90,9 +97,8 @@ function dailyTimecardMapper(entry) {
   }
   return {
     date: entry._id.date,
-    projectId: Projects.findOne({ _id: entry._id.projectId }).name,
-    userId: projectUsers.findOne().users
-      .find((elem) => elem._id === entry._id.userId)?.profile?.name,
+    projectId: Projects.findOne({ _id: entry._id.projectId })?.name,
+    userId: projectResources.findOne({ _id: entry._id.userId })?.name,
     totalHours,
   }
 }
@@ -125,19 +131,19 @@ function buildTotalHoursForPeriodSelector(projectId, period, dates, userId, cust
   const limitSelector = {
     $limit: limit,
   }
-  if (customer !== 'all') {
+  if (!customer.includes('all')) {
     projectList = getProjectListByCustomer(customer).fetch().map((value) => value._id)
   } else {
     projectList = getProjectListById(projectId)
   }
-  if (period && period === 'custom') {
+  if (period && period.includes('custom')) {
     matchSelector = {
       $match: {
         projectId: { $in: projectList },
         date: { $gte: dates.startDate, $lte: dates.endDate },
       },
     }
-    if (userId !== 'all') {
+    if (!userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -154,7 +160,7 @@ function buildTotalHoursForPeriodSelector(projectId, period, dates, userId, cust
         date: { $gte: startDate, $lte: endDate },
       },
     }
-    if (userId !== 'all') {
+    if (!userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -163,7 +169,7 @@ function buildTotalHoursForPeriodSelector(projectId, period, dates, userId, cust
         },
       }
     }
-  } else if (userId === 'all') {
+  } else if (userId.includes('all')) {
     matchSelector = {
       $match: {
         projectId: { $in: projectList },
@@ -182,7 +188,7 @@ function buildTotalHoursForPeriodSelector(projectId, period, dates, userId, cust
 }
 function buildDailyHoursSelector(projectId, period, dates, userId, customer, limit, page) {
   let projectList = []
-  if (customer !== 'all') {
+  if (!customer.includes('all')) {
     projectList = getProjectListByCustomer(customer).fetch().map((value) => value._id)
   } else {
     projectList = getProjectListById(projectId)
@@ -210,7 +216,7 @@ function buildDailyHoursSelector(projectId, period, dates, userId, customer, lim
     $limit: limit,
   }
   if (period && period === 'custom') {
-    if (userId === 'all') {
+    if (userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -228,7 +234,7 @@ function buildDailyHoursSelector(projectId, period, dates, userId, customer, lim
     }
   } else if (period && period !== 'all') {
     const { startDate, endDate } = periodToDates(period)
-    if (userId === 'all') {
+    if (userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -244,7 +250,7 @@ function buildDailyHoursSelector(projectId, period, dates, userId, customer, lim
         },
       }
     }
-  } else if (userId === 'all') {
+  } else if (userId.includes('all')) {
     matchSelector = {
       $match: {
         projectId: { $in: projectList },
@@ -293,7 +299,7 @@ function buildworkingTimeSelector(projectId, period, dates, userId, limit, page)
     $limit: limit,
   }
   if (period && period === 'custom') {
-    if (userId === 'all') {
+    if (userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -311,7 +317,7 @@ function buildworkingTimeSelector(projectId, period, dates, userId, limit, page)
     }
   } else if (period && period !== 'all') {
     const { startDate, endDate } = periodToDates(period)
-    if (userId === 'all') {
+    if (userId.includes('all')) {
       matchSelector = {
         $match: {
           projectId: { $in: projectList },
@@ -327,7 +333,7 @@ function buildworkingTimeSelector(projectId, period, dates, userId, limit, page)
         },
       }
     }
-  } else if (userId === 'all') {
+  } else if (userId.includes('all')) {
     matchSelector = {
       $match: {
         projectId: { $in: projectList },
@@ -380,7 +386,7 @@ function buildDetailedTimeEntriesForPeriodSelector({
 }) {
   const detailedTimeArray = []
   let projectList = getProjectListById(projectId)
-  if (customer !== 'all' && projectId === 'all') {
+  if (!customer.includes('all') && projectId.includes('all')) {
     projectList = getProjectListByCustomer(customer).fetch().map((value) => value._id)
   }
   const query = { projectId: { $in: projectList } }
@@ -438,8 +444,12 @@ function buildDetailedTimeEntriesForPeriodSelector({
     const { startDate, endDate } = periodToDates(period)
     query.date = { $gte: startDate, $lte: endDate }
   }
-  if (userId !== 'all') {
-    query.userId = userId
+  if (!userId.includes('all')) {
+    if (userId instanceof Array) {
+      query.userId = { $in: userId }
+    } else {
+      query.userId = userId
+    }
   }
   detailedTimeArray.push(query)
   detailedTimeArray.push(options)

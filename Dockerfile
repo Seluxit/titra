@@ -1,4 +1,4 @@
-FROM node:14.18
+FROM node:14.19
 ENV METEOR_ALLOW_SUPERUSER true
 RUN curl https://install.meteor.com/ | sh
 RUN meteor --version
@@ -11,9 +11,11 @@ COPY server/ ./server/
 COPY client/ ./client/
 COPY imports/ ./imports/
 COPY .meteor/ ./.meteor/
+ENV DISABLE_CLIENT_STATS true
+ENV METEOR_DISABLE_OPTIMISTIC_CACHING 1
 RUN meteor build /build/ --server-only --architecture os.linux.x86_64
 
-FROM node:14.18-alpine
+FROM node:14.19-alpine
 RUN apk --no-cache add \
 	bash \
     curl \
@@ -23,7 +25,7 @@ RUN apk --no-cache add \
 COPY --from=0 /build/*.tar.gz /app/bundle.tar.gz
 WORKDIR /app/
 RUN tar xvzf bundle.tar.gz
-RUN cd /app/bundle/programs/server; npm ci; npm prune --production;
+RUN cd /app/bundle/programs/server; npm ci --silent --prefer-offline --no-audit; npm prune --production;
 RUN curl -sfL https://gobinaries.com/tj/node-prune -o /tmp/node-prune.sh
 RUN chmod +x /tmp/node-prune.sh
 RUN /tmp/node-prune.sh
@@ -36,7 +38,7 @@ RUN rm -rf /app/bundle/programs/server/npm/node_modules/moment/src/locale
 RUN find /app/bundle/programs/server/npm/node_modules/astronomia/data/ -type f -not -name "deltat.js" -or -name "vsop87Bearth.js" -delete
 RUN find /app/bundle/programs/server/npm/node_modules/astronomia/lib/data/ -type f -not -name "deltat.js" -or -name "vsop87Bearth.js" -delete
 
-FROM node:14.1-alpine
+FROM node:14.19-alpine
 RUN apk --no-cache add \
 	bash \
 	ca-certificates

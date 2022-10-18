@@ -89,7 +89,8 @@
     "total_time": "Gesamte Zeit: ",
     "target": "Ziel: ",
     "turnover": "Umsatz: ",
-    "number_projects": "Anzahl Projekte"
+    "number_projects": "Anzahl Projekte",
+    "summary": "Zusammenfassung"
   },
   "project": {
     "title": "Projekt Bearbeiten",
@@ -120,6 +121,7 @@
     "de": "Deutsch",
     "en": "Englisch",
     "fr": "Französisch",
+    "zh": "Chinesisch",
     "user_interface": "Benutzeroberfläche",
     "theme": "Darstellung",
     "auto_detect": "Automatisch",
@@ -175,7 +177,23 @@
     "holiday_country": "Land",
     "holiday_state": "Bundesland",
     "holiday_region": "Region/Stadt",
-    "xframe_options_origin": "X-Frame-Options header origin URL"
+    "xframe_options_origin": "X-Frame-Options header origin URL",
+    "project_search_num_results": "Die Anzahl der Projekt in der Projektsuche (Standard 5)",
+    "task_search_num_results": "Die Anzahl der Tätigkeiten in der Tätigkeitensuche (Standard 5)",
+    "categories": {
+      "global": "Globale Einstellungen",
+      "interfaces": "Schnittstellen",
+      "customization": "Benutzerdefinierte Anpassungen",
+      "login": "Anmeldung",
+      "holidays": "Feiertage",
+      "security": "Sicherheit",
+      "workingtime_defaults": "Vorbelegungen für die Arbeitszeitansicht",
+      "email": "E-mail",
+      "user_defaults": "Benutzer Vorbelegungen",
+      "time_tracking": "Zeiterfassung",
+      "date_settings": "Formatierung und Berechnung von Terminen",
+      "no_category": "Nicht kategorisiert"
+    }
   },
   "customer": {
     "select_customer": "Kunde auswählen",
@@ -276,8 +294,8 @@
   },
   "notifications": {
     "sanity": "Zu Ihrer Sicherheit ist es nicht möglich alle Daten über den gesamten Zeitraum zu teilen. Bitte wählen Sie ein Projekt aus.",
-    "dashboard_creation_failed": "Die Erstellung des Dashboards ist fehlgeschlagen (Fehlermeldung: {{error}}).",
-    "export_failed": "Der Export ist fehlgeschlagen (Fehlermeldung: {{error}}).",
+    "dashboard_creation_failed": "Die Erstellung des Dashboards ist fehlgeschlagen.",
+    "export_failed": "Der Export ist fehlgeschlagen.",
     "siwapp_configuration": "Sie müssen zunächst die Siwapp Schnittstelle konfigurieren um diese Funktion zu verwenden.",
     "time_entry_deleted": "Eintrag gelöscht",
     "time_entry_updated": "Eintrag aktualisiert",
@@ -310,7 +328,8 @@
     "access_rights_updated": "Die Projekt Zugriffsrechte wurden aktualisiert.",
     "success": "Die Verarbeitung wurde erfolgreich durchgeführt.",
     "wekan_error": "Die Wekan Daten konnten nicht abgerufen werden, bitte überprüfen Sie die Projekt Einstellungen!",
-    "zammad_error": "Die Zammad Daten konnten nicht abgerufen werden, bitte überprüfen Sie die Projekt Einstellungen!"
+    "zammad_error": "Die Zammad Daten konnten nicht abgerufen werden, bitte überprüfen Sie die Projekt Einstellungen!",
+    "user_inactive": "Dieser Benutzer wurde deaktiviert, der Benutzer muss aktiviert werden um fortzufahren."
   },
   "login": {
     "password": "Passwort",
@@ -362,6 +381,7 @@
     "user_created": "Der Benutzer wurde erstellt.",
     "user_updated": "Die Benutzerinformationen wurden aktualisiert.",
     "user_deleted": "Der Benutzer wurde gelöscht.",
+    "user_inactive": "Inaktiv?",
     "user_deletion_confirmation": "Möchten Sie diesen Benutzer wirklich löschen (dies kann nicht rückgängig gemacht werden)?",
     "value": "Wert",
     "global_defaults": "Voreinstellungen:",
@@ -380,7 +400,8 @@
     "extension_removed": "Die Erweiterung wurde erfolgreich entfernt",
     "edit_custom_field": "Benutzerdefiniertes Attribut bearbeiten",
     "oidc": "OpenID Connect",
-    "oidc_configure": "Sie müssen bei Ihrem Anbieter eine OpenID Connect-Clientkonfiguration erstellen. Legen Sie App-Callback-URLs fest auf"
+    "oidc_configure": "Sie müssen bei Ihrem Anbieter eine OpenID Connect-Clientkonfiguration erstellen. Legen Sie App-Callback-URLs fest auf",
+    "custom_field_name_hint": "Leerzeichen und Sonderzeichen sind nicht erlaubt."
   },
   "wekan": {
     "list": "Wekan Liste",

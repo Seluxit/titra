@@ -8,14 +8,14 @@ import Tasks from '../tasks/tasks.js'
 import Projects from '../projects/projects.js'
 import { t } from '../../utils/i18n.js'
 import { emojify, getGlobalSetting } from '../../utils/frontend_helpers'
-import { periodToDates, timeInUserUnit } from '../../utils/periodHelpers.js'
+import { timeInUserUnit } from '../../utils/periodHelpers.js'
 import {
   checkAuthentication,
-  getProjectListByCustomer,
   buildTotalHoursForPeriodSelector,
   buildDailyHoursSelector,
   buildworkingTimeSelector,
   workingTimeEntriesMapper,
+  buildDetailedTimeEntriesForPeriodSelector,
 } from '../../utils/server_method_helpers.js'
 
 function checkTimeEntryRule({
@@ -227,80 +227,47 @@ Meteor.methods({
     return Timecards.remove({ userId: this.userId, _id: timecardId })
   },
   sendToSiwapp({
-    projectId, timePeriod, userId, customer,
+    projectId, timePeriod, userId, customer, dates,
   }) {
-    check(projectId, String)
+    check(projectId, Match.OneOf(String, Array))
     check(timePeriod, String)
-    check(userId, String)
-    check(customer, String)
+    check(userId, Match.OneOf(String, Array))
+    check(customer, Match.OneOf(String, Array))
     checkAuthentication(this)
     const meteorUser = Meteor.users.findOne({ _id: this.userId })
     if (!meteorUser.profile.siwappurl || !meteorUser.profile.siwapptoken) {
       throw new Meteor.Error(t('notifications.siwapp_configuration'))
     }
-    const { startDate, endDate } = periodToDates(timePeriod)
-    const projectMap = new Map()
+    if (timePeriod === 'custom') {
+      check(dates, Object)
+      check(dates.startDate, Date)
+      check(dates.endDate, Date)
+    }
+    checkAuthentication(this)
     const timeEntries = []
-    if (projectId === 'all') {
-      const projects = getProjectListByCustomer(customer)
-      projects.forEach((project) => {
-        const resourceMap = new Map()
-        if (userId !== 'all') {
-          Timecards.find({
-            userId,
-            projectId: project._id,
-            date: { $gte: startDate, $lte: endDate },
-          }).forEach((timecard) => {
-            timeEntries.push(timecard._id)
-            const resource = Meteor.users.findOne({ _id: timecard.userId }).profile.name
-            resourceMap.set(resource, resourceMap.get(resource)
-              ? resourceMap.get(resource) + timecard.hours : timecard.hours)
-          })
-          projectMap.set(project.name, resourceMap)
-        } else {
-          Timecards.find({
-            projectId: project._id,
-            date: { $gte: startDate, $lte: endDate },
-          }).forEach((timecard) => {
-            timeEntries.push(timecard._id)
-            const resource = Meteor.users.findOne({ _id: timecard.userId }).profile.name
-            resourceMap.set(resource, resourceMap.get(resource)
-              ? resourceMap.get(resource) + timecard.hours : timecard.hours)
-          })
-          projectMap.set(project.name, resourceMap)
-        }
-      })
-    } else {
-      const project = Projects.findOne(
-        {
-          _id: projectId,
-        },
-        { _id: 1, name: 1 },
-      )
-      const resourceMap = new Map()
-      if (userId !== 'all') {
-        Timecards.find({
-          userId,
-          projectId: project._id,
-          date: { $gte: startDate, $lte: endDate },
-        }).forEach((timecard) => {
-          timeEntries.push(timecard._id)
-          const resource = Meteor.users.findOne({ _id: timecard.userId }).profile.name
-          resourceMap.set(resource, resourceMap.get(resource)
-            ? resourceMap.get(resource) + timecard.hours : timecard.hours)
-        })
-        projectMap.set(project.name, resourceMap)
+    const selector = buildDetailedTimeEntriesForPeriodSelector({
+      projectId,
+      search: undefined,
+      customer,
+      period: timePeriod,
+      dates,
+      userId,
+      limit: undefined,
+      page: undefined,
+      sort: undefined,
+    })
+    const projectMap = new Map()
+    for (const timecard of Timecards.find(selector[0]).fetch()) {
+      timeEntries.push(timecard._id)
+      const resource = Meteor.users.findOne({ _id: timecard.userId }).profile.name
+      const projectEntry = projectMap.get(timecard.projectId)
+      if (projectEntry) {
+        projectEntry.set(
+          resource,
+          (projectEntry.get(resource) ? projectEntry.get(resource) : 0) + timecard.hours,
+        )
       } else {
-        Timecards.find({
-          projectId: project._id,
-          date: { $gte: startDate, $lte: endDate },
-        }).forEach((timecard) => {
-          timeEntries.push(timecard._id)
-          const resource = Meteor.users.findOne({ _id: timecard.userId }).profile.name
-          resourceMap.set(resource, resourceMap.get(resource)
-            ? resourceMap.get(resource) + timecard.hours : timecard.hours)
-        })
-        projectMap.set(project.name, resourceMap)
+        projectMap.set(timecard.projectId, new Map().set(resource, timecard.hours))
       }
     }
     const invoiceJSON = {
@@ -322,7 +289,7 @@ Meteor.methods({
         resources.forEach((hours, resource) => {
           invoiceJSON.data.relationships.items.data.push({
             attributes: {
-              description: `${project} (${resource})`,
+              description: `${Projects.findOne({ _id: project }).name} (${resource})`,
               quantity: timeInUserUnit(hours, meteorUser),
               unitary_cost: 0,
             },
@@ -357,7 +324,7 @@ Meteor.methods({
     limit,
     page,
   }) {
-    check(projectId, String)
+    check(projectId, Match.OneOf(String, Array))
     check(period, String)
     check(userId, String)
     if (period === 'custom') {
@@ -369,7 +336,15 @@ Meteor.methods({
     check(limit, Number)
     check(page, Match.Maybe(Number))
     checkAuthentication(this)
-    const aggregationSelector = buildDailyHoursSelector(projectId, period, dates, userId, customer, limit, page)
+    const aggregationSelector = buildDailyHoursSelector(
+      projectId,
+      period,
+      dates,
+      userId,
+      customer,
+      limit,
+      page,
+    )
     const dailyHoursObject = {}
     const totalEntries = Promise.await(Timecards.rawCollection()
       .aggregate(buildDailyHoursSelector(projectId, period, dates, userId, customer, 0))
@@ -389,7 +364,7 @@ Meteor.methods({
     limit,
     page,
   }) {
-    check(projectId, String)
+    check(projectId, Match.OneOf(String, Array))
     check(period, String)
     if (period === 'custom') {
       check(dates, Object)
@@ -401,7 +376,15 @@ Meteor.methods({
     check(limit, Number)
     check(page, Match.Maybe(Number))
     checkAuthentication(this)
-    const aggregationSelector = buildTotalHoursForPeriodSelector(projectId, period, dates, userId, customer, limit, page)
+    const aggregationSelector = buildTotalHoursForPeriodSelector(
+      projectId,
+      period,
+      dates,
+      userId,
+      customer,
+      limit,
+      page,
+    )
     const totalHoursObject = {}
     const totalEntries = Promise.await(Timecards.rawCollection()
       .aggregate(buildTotalHoursForPeriodSelector(projectId, period, dates, userId, customer, 0))
@@ -424,7 +407,7 @@ Meteor.methods({
     page,
   }) {
     checkAuthentication(this)
-    check(projectId, String)
+    check(projectId, Match.OneOf(String, Array))
     check(period, String)
     if (period === 'custom') {
       check(dates, Object)
@@ -434,7 +417,14 @@ Meteor.methods({
     check(userId, String)
     check(limit, Number)
     check(page, Match.Maybe(Number))
-    const aggregationSelector = buildworkingTimeSelector(projectId, period, dates, userId, limit, page)
+    const aggregationSelector = buildworkingTimeSelector(
+      projectId,
+      period,
+      dates,
+      userId,
+      limit,
+      page,
+    )
     const totalEntries = Promise.await(
       Timecards.rawCollection()
         .aggregate(buildworkingTimeSelector(projectId, period, dates, userId, 0)).toArray(),

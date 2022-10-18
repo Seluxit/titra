@@ -1,8 +1,8 @@
-version: "2.0"
+version: '3'
 services:
   titra:
     image: kromit/titra
-    container_name: titra
+    container_name: titra_app
     depends_on:
       - mongodb
     environment:
@@ -14,5 +14,11 @@ services:
     restart: always
   mongodb:
     image: mongo:5.0
-    container_name: mongodb
+    container_name: titra_db
     restart: always
+    environment:
+      - MONGO_DB:titra
+    volumes:
+      - titra_db_volume:/data/db
+volumes:
+  titra_db_volume:
