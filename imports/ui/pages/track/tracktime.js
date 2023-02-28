@@ -23,7 +23,6 @@ import './components/weektable.js'
 import './components/calendar.js'
 import '../../shared components/backbutton.js'
 import './components/usersearch.js'
-import CustomFields from '../../api/customfields/customfields.js'
 
 function isHoliday(date) {
   const templateInstance = Template.instance()
