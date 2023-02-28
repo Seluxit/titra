@@ -133,4 +133,16 @@ defaultSettings.push({
 defaultSettings.push({
   name: 'taskSearchNumResults', description: 'settings.task_search_num_results', type: 'number', value: 5, category: 'settings.categories.time_tracking',
 })
+defaultSettings.push({
+  name: 'enableGitlab', description: 'settings.enable_gitlab', type: 'checkbox', value: true, category: 'settings.categories.interfaces',
+})
+defaultSettings.push({
+  name: 'rounding', description: 'settings.rounding', type: 'number', value: undefined, category: 'settings.categories.time_tracking',
+})
+defaultSettings.push({
+  name: 'enableSiwapp', description: 'settings.enable_siwapp', type: 'checkbox', value: true, category: 'settings.categories.interfaces',
+})
+defaultSettings.push({
+  name: 'enableTransactions', description: 'transactions.enable_transactions', type: 'checkbox', value: false, category: 'settings.categories.global',
+})
 export { defaultSettings, Globalsettings }

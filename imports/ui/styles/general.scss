@@ -88,6 +88,9 @@ $btn-link-color: $body-color;
 #cal a {
   text-decoration: none;
 }
+.navbar .d-inline-block {
+    display: grid !important;
+}
 .custom-control-input {
   &:active {
    background-color: #009688;
@@ -123,8 +126,9 @@ $btn-link-color: $body-color;
   background-repeat: repeat-x;
   background-size: 1px 5px;
 }
-
-
+.table-responsive > .form-control {
+  color: #00b9a6  !important;
+}
 // draggable
 .drag {
   z-index: 1000;
@@ -194,7 +198,16 @@ $btn-link-color: $body-color;
   }
 }
 .dt-scrollable {
-   width: 100% !important;
+  width: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+}
+@include media-breakpoint-up(lg) {
+  .dt-scrollable {
+    width: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
 }
 .week-row:hover {
   text-decoration: none;
@@ -315,4 +328,17 @@ button.dp-clear {
   transform: scale(1.5);
   vertical-align: middle;
   margin-left: 10px !important;
+}
+
+.cl {
+  box-shadow: none !important;
+}
+.cl-actionbar {
+  background-color: var(--bs-card-cap-bg) !important;
+}
+.cl-button:hover {
+  background-color: $light !important;
+}
+.cl-content {
+  background-color: transparent !important;
 }

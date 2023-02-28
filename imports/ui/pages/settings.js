@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { Random } from 'meteor/random'
 import { t } from '../../utils/i18n.js'
 import './settings.html'
-import '../components/backbutton.js'
+import '../shared components/backbutton.js'
 import { getUserSetting, showToast } from '../../utils/frontend_helpers'
 import { getHolidayCountries, getHolidayStates, getHolidayRegions } from '../../utils/holiday'
 
@@ -77,6 +77,7 @@ Template.settings.onRendered(function settingsRendered() {
 
 Template.settings.helpers({
   unit: () => getUserSetting('unit'),
+  rounding: () => getUserSetting('rounding'),
   startOfWeek: () => getUserSetting('startOfWeek'),
   dailyStartTime: () => getUserSetting('dailyStartTime'),
   breakStartTime: () => getUserSetting('breakStartTime'),
@@ -84,7 +85,7 @@ Template.settings.helpers({
   regularWorkingTime: () => getUserSetting('regularWorkingTime'),
   precision: () => getUserSetting('precision'),
   timetrackview: () => getUserSetting('timetrackview'),
-  hoursToDays: () => getUserSetting('hoursToDays'),
+  hoursToDays: () => (getUserSetting('hoursToDays') ? getUserSetting('hoursToDays') : 8),
   displayHoursToDays: () => Template.instance().displayHoursToDays.get(),
   enableWekan: () => getUserSetting('enableWekan'),
   siwappurl: () => getUserSetting('siwappurl'),
@@ -92,6 +93,8 @@ Template.settings.helpers({
   titraAPItoken: () => getUserSetting('APItoken'),
   zammadurl: () => getUserSetting('zammadurl'),
   zammadtoken: () => getUserSetting('zammadtoken'),
+  gitlaburl: () => getUserSetting('gitlaburl'),
+  gitlabtoken: () => getUserSetting('gitlabtoken'),
 })
 
 Template.settings.events({
@@ -119,6 +122,9 @@ Template.settings.events({
         holidayRegion: templateInstance.$('#holidayRegion').val(),
         zammadtoken: templateInstance.$('#zammadtoken').val(),
         zammadurl: templateInstance.$('#zammadurl').val(),
+        gitlabtoken: templateInstance.$('#gitlabtoken').val(),
+        gitlaburl: templateInstance.$('#gitlaburl').val(),
+        rounding: Number(templateInstance.$('#rounding').val()),
       },
       (error) => {
         if (error) {

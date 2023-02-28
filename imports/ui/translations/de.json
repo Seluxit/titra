@@ -113,7 +113,10 @@
     "not_billable": "Nicht verrechenbar",
     "billing_budget": "Verrechnung & Budget",
     "default_task": "Standard Tätigkeit",
-    "default_task_help": "Der Wert in diesem Feld wird bei der Erfassung eines neuen Zeiteintrags in das Tätigkeitsfeld bei der Auswahl dieses Projektes automatisch eingetragen."
+    "default_task_help": "Der Wert in diesem Feld wird bei der Erfassung eines neuen Zeiteintrags in das Tätigkeitsfeld bei der Auswahl dieses Projektes automatisch eingetragen.",
+    "gitlab_integration": "GitLab Integration",
+    "gitlab_query": "Such Parameter",
+    "gitlab_help": "Sie können hier alle Parameter der GitLab Issues API verwenden wie z.B."
   },
   "settings": {
     "user_profile": "Benutzer Profil",
@@ -193,7 +196,13 @@
       "time_tracking": "Zeiterfassung",
       "date_settings": "Formatierung und Berechnung von Terminen",
       "no_category": "Nicht kategorisiert"
-    }
+    },
+    "gitlab_url": "URL der GitLab Instanz",
+    "gitlab_api_token": "GitLab API Token",
+    "enable_gitlab": "Gitlab Schnittstelle aktivieren?",
+    "rounding": "Rundung",
+    "rounding_tooltip": "Erfasste Zeiten werden auf Basis der gewählten Zeiteinheit automatisch auf die nächste spezifizierte Einheit aufgerundet z.B. bei Zeiteinheit Minuten und Rundungswert 15 wird immer auf die nächsten 15 Minuten aufgerundet (Eingabe 5 Minuten > Ergebnis nach Rundung 15 Minuten).",
+    "enable_siwapp": "Siwapp Schnittstelle aktivieren?"
   },
   "customer": {
     "select_customer": "Kunde auswählen",
@@ -252,7 +261,8 @@
     "exported": "Exportiert",
     "billed": "Verrechnet",
     "notBillable": "Nicht Verrechenbar",
-    "charts": "Diagramme"
+    "charts": "Diagramme",
+    "markAsBilled": "Alles verrechnet"
   },
   "dashboard": {
     "share": "Projekt Dashboard teilen",
@@ -329,7 +339,8 @@
     "success": "Die Verarbeitung wurde erfolgreich durchgeführt.",
     "wekan_error": "Die Wekan Daten konnten nicht abgerufen werden, bitte überprüfen Sie die Projekt Einstellungen!",
     "zammad_error": "Die Zammad Daten konnten nicht abgerufen werden, bitte überprüfen Sie die Projekt Einstellungen!",
-    "user_inactive": "Dieser Benutzer wurde deaktiviert, der Benutzer muss aktiviert werden um fortzufahren."
+    "user_inactive": "Dieser Benutzer wurde deaktiviert, der Benutzer muss aktiviert werden um fortzufahren.",
+    "extensionAlreadyLaunched": "Die Erweiterung wurde bereits gestartet."
   },
   "login": {
     "password": "Passwort",
@@ -407,5 +418,13 @@
     "list": "Wekan Liste",
     "swimlane": "Wekan Swimlane",
     "instance_url": "API URL der Wekan Instanz"
+  },
+  "transactions": {
+    "transactions": "Protokoll",
+    "enable_transactions": "Ereignis Protokoll aktivieren",
+    "user": "Benutzer",
+    "method": "Aktion",
+    "payload": "Änderungen",
+    "timestamp": "Zeitstempel"
   }
 }
